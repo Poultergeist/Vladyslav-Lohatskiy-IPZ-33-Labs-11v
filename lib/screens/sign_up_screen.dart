@@ -1,12 +1,49 @@
 import 'package:flutter/material.dart';
-import './log_in_screen.dart'; // Import the LoginScreen to navigate back.
+import 'package:dio/dio.dart';
+import './log_in_screen.dart';
 
 class SignUpScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
-
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final Dio _dio = Dio();
+  final String _requestCatcherUrl = "https://vlohatskiy-lab12.requestcatcher.com";  // Ваш субдомен
+
+  // Функція для відправки запиту на реєстрацію
+  Future<void> _sendSignUpRequest(BuildContext context) async {
+    try {
+      final response = await _dio.post(
+        '$_requestCatcherUrl/signup',
+        data: {
+          'name': _nameController.text,
+          'email': _emailController.text,
+          'password': _passwordController.text,
+        },
+      );
+      print('Response: ${response.data}');
+      showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return AlertDialog(
+            title: Text('Sign Up Successful'),
+            content: Text('Welcome, ${_nameController.text}!'),
+          );
+        },
+      );
+    } catch (e) {
+      print('Error: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return AlertDialog(
+            title: Text('Sign Up Failed'),
+            content: Text('Error occurred: $e'),
+          );
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,42 +60,29 @@ class SignUpScreen extends StatelessWidget {
             SizedBox(height: 20.0),
             Text("Sign up"),
             SizedBox(height: 20.0),
-            // Wrap the form fields in a Form widget for validation
             Form(
               key: _formKey,
               child: Column(
                 children: [
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Name",
-                      textAlign: TextAlign.left,
-                      textWidthBasis: TextWidthBasis.parent,
-                    ),
+                    child:
+                    Text("Name"),
                   ),
                   TextFormField(
                     controller: _nameController,
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
+                      if (value == null || value.isEmpty || value.length < 5) {
                         return 'Please enter your name';
-                      }
-                      if (value.length < 5) {
-                        return 'Name must be at least 5 characters';
                       }
                       return null;
                     },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: InputDecoration(border: OutlineInputBorder()),
                   ),
-                  SizedBox(height: 20.0),
-                  Align(
+                  SizedBox(height: 20.0),Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Email",
-                      textAlign: TextAlign.left,
-                      textWidthBasis: TextWidthBasis.parent,
-                    ),
+                    child:
+                    Text("Email"),
                   ),
                   TextFormField(
                     controller: _emailController,
@@ -66,100 +90,57 @@ class SignUpScreen extends StatelessWidget {
                       if (value == null || value.isEmpty) {
                         return 'Please enter an email';
                       }
-                      // Basic email regex pattern
-                      final emailRegex =
-                          RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                      final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                       if (!emailRegex.hasMatch(value)) {
                         return 'Please enter a valid email';
                       }
                       return null;
                     },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: InputDecoration(border: OutlineInputBorder()),
                   ),
                   SizedBox(height: 20.0),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Password",
-                      textAlign: TextAlign.left,
-                      textWidthBasis: TextWidthBasis.parent,
-                    ),
+                    child:
+                    Text("Password"),
                   ),
                   TextFormField(
                     controller: _passwordController,
+                    obscureText: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter password';
+                        return 'Please enter a password';
                       }
                       if (value.length < 7) {
-                        return 'Password must be at least 7 characters';
+                        return 'Password is too short';
                       }
                       return null;
                     },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                    ),
-                    obscureText: true,
+                    decoration: InputDecoration(border: OutlineInputBorder()),
                   ),
                   SizedBox(height: 20.0),
                 ],
               ),
             ),
-            // Sign Up Button
-            Container(
-              width: double.infinity,
-              child: FilledButton(
-                style: FilledButton.styleFrom(
-                  padding: EdgeInsets.symmetric(
-                      vertical: 20.0,
-                      horizontal: 20.0), // Padding for text inside the button
-                ),
-                child: Text("Sign Up"),
-                onPressed: () {
-                  // Validate the form and show appropriate message
-                  if (_formKey.currentState?.validate() ?? false) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext ctx) {
-                        return const AlertDialog(
-                          title: Text('Message'),
-                          content: Text("Sign up successful!"),
-                        );
-                      },
-                    );
-                  } else {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext ctx) {
-                        return const AlertDialog(
-                          title: Text('Message'),
-                          content: Text(
-                              "There is an issue with your input. Please fix it."),
-                        );
-                      },
-                    );
-                  }
-                },
-              ),
+            FilledButton(
+              onPressed: () {
+                if (_formKey.currentState?.validate() ?? false) {
+                  _sendSignUpRequest(context);
+                }
+              },
+              child: Text("Sign Up"),
             ),
             SizedBox(height: 20.0),
-            // Back Button
-            Container(
-              width: double.infinity,
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(
-                      vertical: 20.0,
-                      horizontal: 20.0), // Padding for text inside the button
-                ),
-                child: Text("Back"),
-                onPressed: () {
-                  // Navigate back to the login screen
-                  Navigator.pop(context);
-                },
-              ),
+            TextButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoginScreen(),
+                  ),
+                );
+              },
+              child: Text("Already have an account? Login"),
             ),
           ],
         ),

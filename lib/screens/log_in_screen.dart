@@ -1,12 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';  // Імпортуємо dio
 import './sign_up_screen.dart';
 import './reset_password.dart';
 
 class LoginScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
-
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final Dio _dio = Dio();  // Ініціалізуємо Dio
+  final String _requestCatcherUrl = "https://vlohatskiy-lab12.requestcatcher.com";  // Замінити на свій субдомен
+
+  // Функція для відправки запиту на логін
+  Future<void> _sendLoginRequest(BuildContext context) async {
+    try {
+      final response = await _dio.post(
+        '$_requestCatcherUrl/login',
+        data: {
+          'email': _emailController.text,
+          'password': _passwordController.text,
+        },
+      );
+      print('Response: ${response.data}');
+      showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return AlertDialog(
+            title: Text('Login Successful'),
+            content: Text('Welcome, ${_emailController.text}!'),
+          );
+        },
+      );
+    } catch (e) {
+      print('Error: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return AlertDialog(
+            title: Text('Login Failed'),
+            content: Text('Error occurred: $e'),
+          );
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,21 +56,14 @@ class LoginScreen extends StatelessWidget {
               "https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Google-flutter-logo.svg/1024px-Google-flutter-logo.svg.png",
               width: 200,
             ),
-            SizedBox(
-              height: 20.0,
-            ),
-            // Wrap the form fields in a Form widget
+            SizedBox(height: 20.0),
             Form(
               key: _formKey,
               child: Column(
                 children: [
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Email",
-                      textAlign: TextAlign.left,
-                      textWidthBasis: TextWidthBasis.parent,
-                    ),
+                    child: Text("Email", textAlign: TextAlign.left),
                   ),
                   TextFormField(
                     controller: _emailController,
@@ -42,49 +71,34 @@ class LoginScreen extends StatelessWidget {
                       if (value == null || value.isEmpty) {
                         return 'Please enter an email';
                       }
-                      // Basic email regex pattern
-                      final emailRegex =
-                          RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                      final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                       if (!emailRegex.hasMatch(value)) {
                         return 'Please enter a valid email';
                       }
                       return null;
                     },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: InputDecoration(border: OutlineInputBorder()),
                   ),
-                  SizedBox(
-                    height: 20.0,
-                  ),
+                  SizedBox(height: 20.0),
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Password",
-                      textAlign: TextAlign.left,
-                      textWidthBasis: TextWidthBasis.parent,
-                    ),
+                    child: Text("Password", textAlign: TextAlign.left),
                   ),
                   TextFormField(
                     controller: _passwordController,
+                    obscureText: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "Please enter password";
+                        return 'Please enter password';
                       }
-
                       if (value.length < 7) {
-                        return "Password is too short";
+                        return 'Password is too short';
                       }
                       return null;
                     },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                    ),
-                    obscureText: true,
+                    decoration: InputDecoration(border: OutlineInputBorder()),
                   ),
-                  SizedBox(
-                    height: 20.0,
-                  ),
+                  SizedBox(height: 20.0),
                 ],
               ),
             ),
@@ -92,11 +106,7 @@ class LoginScreen extends StatelessWidget {
             Container(
               width: double.infinity,
               child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(
-                      vertical: 20.0,
-                      horizontal: 20.0), // Padding for text inside the button
-                ),
+                style: OutlinedButton.styleFrom(padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0)),
                 child: Text("Sign Up"),
                 onPressed: () {
                   Navigator.push(
@@ -109,31 +119,21 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20.0),
-            // Login button and Reset password link
+            // Login Button and Reset Password Link
             Row(
               children: [
                 Expanded(
                   child: FilledButton(
                     onPressed: () {
-                      // Check if the form is valid before showing a dialog
                       if (_formKey.currentState?.validate() ?? false) {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext ctx) {
-                            return const AlertDialog(
-                              title: Text('Message'),
-                              content: Text("All is okay!"),
-                            );
-                          },
-                        );
+                        _sendLoginRequest(context);
                       } else {
                         showDialog(
                           context: context,
                           builder: (BuildContext ctx) {
                             return const AlertDialog(
                               title: Text('Message'),
-                              content: Text(
-                                  "There is an issue with your input. Please fix it."),
+                              content: Text("There is an issue with your input. Please fix it."),
                             );
                           },
                         );

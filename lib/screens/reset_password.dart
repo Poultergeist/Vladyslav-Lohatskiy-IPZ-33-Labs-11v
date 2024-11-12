@@ -1,10 +1,45 @@
 import 'package:flutter/material.dart';
-import './log_in_screen.dart'; // Import the login screen to navigate back.
+import 'package:dio/dio.dart';
+import './log_in_screen.dart';
 
 class ResetPasswordScreen extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
-
   final TextEditingController _emailController = TextEditingController();
+  final Dio _dio = Dio();
+  final String _requestCatcherUrl = "https://vlohatskiy-lab12.requestcatcher.com";  // Ваш субдомен
+
+  // Функція для відправки запиту на скидання пароля
+  Future<void> _sendResetPasswordRequest(BuildContext context) async {
+    try {
+      final response = await _dio.post(
+        '$_requestCatcherUrl/reset_password',
+        data: {
+          'email': _emailController.text,
+        },
+      );
+      print('Response: ${response.data}');
+      showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return AlertDialog(
+            title: Text('Password Reset Request Sent'),
+            content: Text('Check your email for instructions to reset your password.'),
+          );
+        },
+      );
+    } catch (e) {
+      print('Error: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return AlertDialog(
+            title: Text('Failed to Reset Password'),
+            content: Text('An error occurred: $e'),
+          );
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,95 +54,49 @@ class ResetPasswordScreen extends StatelessWidget {
               width: 200,
             ),
             SizedBox(height: 20.0),
-            // Wrap the form fields in a Form widget for validation
+            Text("Reset Password"),
+            SizedBox(height: 20.0),
             Form(
               key: _formKey,
               child: Column(
                 children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Email",
-                      textAlign: TextAlign.left,
-                      textWidthBasis: TextWidthBasis.parent,
-                    ),
-                  ),
                   TextFormField(
                     controller: _emailController,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter an email';
+                        return 'Please enter your email';
                       }
-                      // Basic email regex pattern
-                      final emailRegex =
-                          RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                      final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
                       if (!emailRegex.hasMatch(value)) {
                         return 'Please enter a valid email';
                       }
                       return null;
                     },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: InputDecoration(border: OutlineInputBorder()),
                   ),
                   SizedBox(height: 20.0),
                 ],
               ),
             ),
-            // Reset Button
-            Container(
-              width: double.infinity,
-              child: FilledButton(
-                style: FilledButton.styleFrom(
-                  padding: EdgeInsets.symmetric(
-                      vertical: 20.0,
-                      horizontal: 20.0), // Padding for text inside the button
-                ),
-                child: Text("Reset Password"),
-                onPressed: () {
-                  // Validate the form and show appropriate message
-                  if (_formKey.currentState?.validate() ?? false) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext ctx) {
-                        return const AlertDialog(
-                          title: Text('Message'),
-                          content: Text(
-                              "Password reset link has been sent to your email!"),
-                        );
-                      },
-                    );
-                  } else {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext ctx) {
-                        return const AlertDialog(
-                          title: Text('Message'),
-                          content: Text(
-                              "There is an issue with your input. Please fix it."),
-                        );
-                      },
-                    );
-                  }
-                },
-              ),
+            FilledButton(
+              onPressed: () {
+                if (_formKey.currentState?.validate() ?? false) {
+                  _sendResetPasswordRequest(context);
+                }
+              },
+              child: Text("Send Reset Link"),
             ),
             SizedBox(height: 20.0),
-            // Back Button
-            Container(
-              width: double.infinity,
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(
-                      vertical: 20.0,
-                      horizontal: 20.0), // Padding for text inside the button
-                ),
-                child: Text("Back"),
-                onPressed: () {
-                  // Navigate back to the login screen
-                  Navigator.pop(context);
-                },
-              ),
+            TextButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoginScreen(),
+                  ),
+                );
+              },
+              child: Text("Back to Login"),
             ),
           ],
         ),
