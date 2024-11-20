@@ -1,27 +1,22 @@
 import 'package:flutter/material.dart';
-import './screens/log_in_screen.dart';
+import 'screens/home_screen.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const NotesApp());
 }
 
-class MyApp extends StatelessWidget {
+class NotesApp extends StatelessWidget {
+  const NotesApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      title: 'Notes App',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
-        useMaterial3: false,
-        filledButtonTheme: FilledButtonThemeData(
-          style: FilledButton.styleFrom(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0)
-            )
-          )
-        )
+        primarySwatch: Colors.blue,
       ),
-      home: LoginScreen(),
+      home: const HomeScreen(),
     );
   }
 }
