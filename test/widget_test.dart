@@ -1,30 +1,37 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:lab/calculator.dart';
 import 'package:lab/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  // Тест на правильність розрахунку функції
+  test('Function calculation test', () {
+    final calculator = Calculator();
+    expect(calculator.calculate(2), closeTo(0.625, 0.001)); // 5*2 / (4*2^2) = 0.625
+  });
+
+  // Тест на наявність тексту "IPZ-33: Vladyslav's last Flutter App"
+  testWidgets('App displays correct text', (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
+    expect(find.text("IPZ-33: Vladyslav's last Flutter App"), findsOneWidget);
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  // Тест на наявність FloatingActionButton з іконкою Icons.person
+  testWidgets('FloatingActionButton has correct icon', (WidgetTester tester) async {
+    await tester.pumpWidget(const MyApp());
+    final iconFinder = find.byIcon(Icons.person);
+    expect(iconFinder, findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+  // Тест на правильне збільшення лічильника при натисканні кнопки
+  testWidgets('Counter increments correctly', (WidgetTester tester) async {
+    await tester.pumpWidget(const MyApp());
+    expect(find.text('Counter value: 0'), findsOneWidget);
+
+    // Натискаємо на кнопку
+    await tester.tap(find.byIcon(Icons.person));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Counter value: 1'), findsOneWidget);
   });
 }

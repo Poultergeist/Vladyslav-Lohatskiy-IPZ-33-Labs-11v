@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'dart:async';
-import 'package:flutter/services.dart';
+import 'calculator.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,99 +11,44 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: NativeCameraApp(),
+      home: const HomeScreen(),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
+        useMaterial3: true,
+      ),
     );
   }
 }
 
-class NativeCameraApp extends StatefulWidget {
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
   @override
-  _NativeCameraAppState createState() => _NativeCameraAppState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _NativeCameraAppState extends State<NativeCameraApp> {
-  static const platform = MethodChannel('com.example/native_code');
-  File? _image;
+class _HomeScreenState extends State<HomeScreen> {
+  int _counter = 0;
 
-  Future<void> _getNativeTime(BuildContext context) async {
-    try {
-      final String nativeDate = await platform.invokeMethod('getNativeDate');
-      _showTimeDialog(context, nativeDate);
-    } on PlatformException catch (e) {
-      _showTimeDialog(context, "Error: ${e.message}");
-    }
-  }
-
-  void _showTimeDialog(BuildContext context, String time) {
-    showDialog(
-      context: context,
-      builder: (context) => TimeDialog(time: time),
-    );
-  }
-
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.camera);
-
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Native and Camera App"),
+        title: const Text('IPZ-33: Vladyslav\'s last Flutter App'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () => _getNativeTime(context),
-              child: const Text("Get Native Date"),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _pickImage,
-              child: const Text("Take a Photo"),
-            ),
-            const SizedBox(height: 20),
-            if (_image != null)
-              Image.file(
-                _image!,
-                height: 300,
-                width: 300,
-                fit: BoxFit.cover,
-              ),
-          ],
-        ),
+        child: Text('Counter value: $_counter'),
       ),
-    );
-  }
-}
-
-class TimeDialog extends StatelessWidget {
-  final String time;
-
-  const TimeDialog({super.key, required this.time});
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Current Date'),
-      content: Text(time),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: const Text('OK'),
-        ),
-      ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        child: const Icon(Icons.person),
+      ),
     );
   }
 }
