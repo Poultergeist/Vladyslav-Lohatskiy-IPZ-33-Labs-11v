@@ -10,28 +10,23 @@ void main() {
     expect(calculator.calculate(2), closeTo(0.625, 0.001)); // 5*2 / (4*2^2) = 0.625
   });
 
-  // Тест на наявність тексту "IPZ-33: Vladyslav's last Flutter App"
   testWidgets('App displays correct text', (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
     expect(find.text("IPZ-33: Vladyslav's last Flutter App"), findsOneWidget);
   });
 
-  // Тест на наявність FloatingActionButton з іконкою Icons.person
   testWidgets('FloatingActionButton has correct icon', (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
-    final iconFinder = find.byIcon(Icons.person);
+    final iconFinder = find.byIcon(Icons.pets);
     expect(iconFinder, findsOneWidget);
   });
 
-  // Тест на правильне збільшення лічильника при натисканні кнопки
   testWidgets('Counter increments correctly', (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
     expect(find.text('Counter value: 0'), findsOneWidget);
-
-    // Натискаємо на кнопку
-    await tester.tap(find.byIcon(Icons.person));
+    await tester.tap(find.byIcon(Icons.pets));
     await tester.pump();
 
-    expect(find.text('Counter value: 1'), findsOneWidget);
+    expect(find.text('Counter value: 4'), findsOneWidget);
   });
 }

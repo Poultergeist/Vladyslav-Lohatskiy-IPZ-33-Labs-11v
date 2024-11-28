@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _incrementCounter() {
     setState(() {
-      _counter++;
+      _counter += 4;
     });
   }
 
@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
-        child: const Icon(Icons.person),
+        child: const Icon(Icons.pets),
       ),
     );
   }
